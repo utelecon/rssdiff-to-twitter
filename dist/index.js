@@ -33281,10 +33281,10 @@ var require_cjs = __commonJS({
 });
 
 // src/index.ts
-var core2 = __toESM(require_core(), 1);
+var core2 = __toESM(require_core());
 
 // src/config.ts
-var core = __toESM(require_core(), 1);
+var core = __toESM(require_core());
 function getInputs() {
   return {
     rssPaths: {
@@ -33301,10 +33301,10 @@ function getInputs() {
 }
 
 // src/twitter.ts
-var import_fs = __toESM(require("fs"), 1);
+var import_fs = __toESM(require("fs"));
 var import_promises = require("timers/promises");
-var import_rss_parser = __toESM(require_rss_parser(), 1);
-var import_twitter_api_v2 = __toESM(require_cjs(), 1);
+var import_rss_parser = __toESM(require_rss_parser());
+var import_twitter_api_v2 = __toESM(require_cjs());
 async function tweetRssDiff(rssPaths2, twitterTokens2) {
   const parser = new import_rss_parser.default();
   const oldRss = await parseRss(parser, rssPaths2.oldRssPath);

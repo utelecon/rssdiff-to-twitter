@@ -1,6 +1,6 @@
 {
   "name": "@utelecon/rssdiff-to-twitter",
-  "type": "module",
+  "type": "commonjs",
   "version": "0.0.1",
   "private": true,
   "scripts": {
