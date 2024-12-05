@@ -33318,7 +33318,7 @@ async function tweetRssDiff(rssPaths2, twitterTokens2) {
   }
   core2.info(`${posts.length} new entrie(s) found:`);
   for (const post of posts) {
-    core2.info(post);
+    core2.info(`- ${post}`);
   }
   const client = new import_twitter_api_v2.TwitterApi(twitterTokens2);
   for (const status of posts) {
