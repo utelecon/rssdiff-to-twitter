@@ -9,7 +9,6 @@ build({
   bundle: true,
   platform: 'node',
   target: 'node20',
-  format: 'esm',
   plugins: [
     esbuildPluginTsc(),
   ],
