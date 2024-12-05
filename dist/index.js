@@ -33309,27 +33309,24 @@ async function tweetRssDiff(rssPaths2, twitterTokens2) {
   const parser = new import_rss_parser.default();
   const oldRss = await parseRss(parser, rssPaths2.oldRssPath);
   const newRss = await parseRss(parser, rssPaths2.newRssPath);
-  const newEntries = getNewEntries(oldRss, newRss);
-  if (newEntries.length > 0) {
-    const client = new import_twitter_api_v2.TwitterApi(twitterTokens2);
-    for (const entry of newEntries) {
-      const status = `${entry.title} ${entry.link}`;
-      await client.v2.tweet(status);
-      console.log("Posted to Twitter:", status);
-      await (0, import_promises.setTimeout)(5e3);
-    }
-    console.log(`Posted ${newEntries.length} new entries to Twitter.`);
-  } else {
+  const oldEntries = new Set(oldRss.items.map((item) => item.link));
+  const posts = newRss.items.filter((item) => !oldEntries.has(item.link)).map((entry) => `${entry.title} ${entry.link}`);
+  if (posts.length === 0) {
     console.log("No new entries found.");
+    return;
   }
+  console.log("New entries found:", posts);
+  const client = new import_twitter_api_v2.TwitterApi(twitterTokens2);
+  for (const status of posts) {
+    await client.v2.tweet(status);
+    console.log("Posted to Twitter:", status);
+    await (0, import_promises.setTimeout)(5e3);
+  }
+  console.log(`Posted ${posts.length} new entries to Twitter.`);
 }
 async function parseRss(parser, filePath) {
   const data = import_fs.default.readFileSync(filePath, "utf8");
   return await parser.parseString(data);
-}
-function getNewEntries(oldRss, newRss) {
-  const oldEntries = new Set(oldRss.items.map((item) => item.link));
-  return newRss.items.filter((item) => !oldEntries.has(item.link));
 }
 
 // src/index.ts
