@@ -12,16 +12,23 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
-    
-    - name: Fetch RSS files
-      run: |
-        wget -O new.xml https://utelecon.adm.u-tokyo.ac.jp/notice/rss.xml
 
-    - name: Run RSS diff to Twitter action
+    - name: Run RSS diff to Twitter action (w/o diff)
       uses: ./
       with:
-        OLD_RSS: new.xml
-        NEW_RSS: new.xml
+        OLD_RSS: test/new.xml
+        NEW_RSS: test/new.xml
+        TWITTER_APIKEY: FOOBAR
+        TWITTER_APIKEY_SECRET: FOOBAR
+        TWITTER_ACCESS_TOKEN: FOOBAR
+        TWITTER_ACCESS_TOKEN_SECRET: FOOBAR
+
+
+    - name: Run RSS diff to Twitter action (w/ diff)
+      uses: ./
+      with:
+        OLD_RSS: test/old.xml
+        NEW_RSS: test/new.xml
         TWITTER_APIKEY: FOOBAR
         TWITTER_APIKEY_SECRET: FOOBAR
         TWITTER_ACCESS_TOKEN: FOOBAR
