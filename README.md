@@ -3,7 +3,9 @@
 [![CI Status](https://github.com/phenylshima/rssdiff-to-twitter/workflows/CI/badge.svg)](https://github.com/phenylshima/rssdiff-to-twitter/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/phenylshima/rssdiff-to-twitter/blob/master/LICENSE)
 
-GitHub Actions post twitter from RSS Feed.
+GitHub Actions to post newly added entries from a RSS feed to twitter.
+
+This actions was developed for [utelecon](https://github.com/utelecon) project, inspired by [azu/rss-to-twitter](https://github.com/azu/rss-to-twitter).
 
 ## Post Steps
 
