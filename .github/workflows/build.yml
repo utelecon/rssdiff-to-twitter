@@ -1,0 +1,37 @@
+name: Build and Check Dist
+
+on: 
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - name: Install dependencies
+      run: npm install
+
+    - name: Save current dist/index.js
+      run: cp dist/index.js dist/index.js.bak
+
+    - name: Run build
+      run: npm run build
+
+    - name: Check if dist/index.js is unchanged
+      run: |
+        if cmp -s dist/index.js dist/index.js.bak; then
+          echo "dist/index.js is unchanged";
+        else
+          echo "dist/index.js needs to be updated";
+          exit 1;
+        fi

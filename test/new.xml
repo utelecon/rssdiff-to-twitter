@@ -1,0 +1,27 @@
+<rss xmlns:atom="http://www.w3.org/2005/Atom" version="2.0">
+  <channel>
+    <title>Test RSS Feed</title>
+    <description>This is a test RSS feed</description>
+    <link>http://www.example.com</link>
+    <language>en-us</language>
+    <atom:link href="https://www.example.com/rss.xml" rel="self" type="application/rss+xml"/>
+    <item>
+      <title>First Entry</title>
+      <link>http://www.example.com/first-entry</link>
+      <description>This is the first entry in the test RSS feed</description>
+      <pubDate>Fri, 25 Oct 2024 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Second Entry</title>
+      <link>http://www.example.com/second-entry</link>
+      <description>This is the second entry in the test RSS feed</description>
+      <pubDate>Fri, 01 Nov 2024 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Third Entry</title>
+      <link>http://www.example.com/third-entry</link>
+      <description>This is the third entry in the test RSS feed</description>
+      <pubDate>Tue, 12 Nov 2024 00:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

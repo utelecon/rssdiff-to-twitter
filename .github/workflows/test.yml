@@ -1,0 +1,24 @@
+name: Test RSS diff to Twitter
+
+on: 
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Run RSS diff to Twitter action (w/o diff)
+      uses: ./
+      with:
+        OLD_RSS: test/new.xml
+        NEW_RSS: test/new.xml
+        TWITTER_APIKEY: FOOBAR
+        TWITTER_APIKEY_SECRET: FOOBAR
+        TWITTER_ACCESS_TOKEN: FOOBAR
+        TWITTER_ACCESS_TOKEN_SECRET: FOOBAR
