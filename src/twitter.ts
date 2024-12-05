@@ -27,7 +27,7 @@ export async function tweetRssDiff(
 
   core.info(`${posts.length} new entrie(s) found:`);
   for (const post of posts) {
-    core.info(post);
+    core.info(`- ${post}`);
   }
 
   const client = new TwitterApi(twitterTokens);
