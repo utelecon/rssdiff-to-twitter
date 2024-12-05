@@ -22,3 +22,14 @@ jobs:
         TWITTER_APIKEY_SECRET: FOOBAR
         TWITTER_ACCESS_TOKEN: FOOBAR
         TWITTER_ACCESS_TOKEN_SECRET: FOOBAR
+
+    - name: Run RSS diff to Twitter action (w/ diff)
+      continue-on-error: true # Expected to fail due to api key being invalid
+      uses: ./
+      with:
+        OLD_RSS: test/new.xml
+        NEW_RSS: test/new.xml
+        TWITTER_APIKEY: FOOBAR
+        TWITTER_APIKEY_SECRET: FOOBAR
+        TWITTER_ACCESS_TOKEN: FOOBAR
+        TWITTER_ACCESS_TOKEN_SECRET: FOOBAR
