@@ -27,7 +27,7 @@ jobs:
       continue-on-error: true # Expected to fail due to api key being invalid
       uses: ./
       with:
-        OLD_RSS: test/new.xml
+        OLD_RSS: test/old.xml
         NEW_RSS: test/new.xml
         TWITTER_APIKEY: FOOBAR
         TWITTER_APIKEY_SECRET: FOOBAR
