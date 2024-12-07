@@ -20,27 +20,33 @@ name: RSS Diff to Twitter
 on:
   push:
     branches: [main]
-  pull_request:
 
 jobs:
   post_to_twitter:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Run RSS diff to Twitter action
-      uses: utelecon/rssdiff-to-twitter@main
-      with:
-        OLD_RSS: path/to/old/rss/file.xml
-        NEW_RSS: path/to/new/rss/file.xml
-        TWITTER_APIKEY: ${{ secrets.TWITTER_APIKEY }}
-        TWITTER_APIKEY_SECRET: ${{ secrets.TWITTER_APIKEY_SECRET }}
-        TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
-        TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
+      - uses: actions/download-artifact@v4
+        with:
+          name: rss-old
+          path: rss-old
+      - uses: actions/download-artifact@v4
+        with:
+          name: rss-new
+          path: rss-new
+
+      - name: Run RSS diff to Twitter action
+        uses: utelecon/rssdiff-to-twitter@main
+        with:
+          OLD_RSS: "rss-old/rss.xml"
+          NEW_RSS: "rss-new/rss.xml"
+          TWITTER_APIKEY: ${{ secrets.TWITTER_APIKEY }}
+          TWITTER_APIKEY_SECRET: ${{ secrets.TWITTER_APIKEY_SECRET }}
+          TWITTER_ACCESS_TOKEN: ${{ secrets.TWITTER_ACCESS_TOKEN }}
+          TWITTER_ACCESS_TOKEN_SECRET: ${{ secrets.TWITTER_ACCESS_TOKEN_SECRET }}
 ```
 
-Make sure to replace the `path/to/old/rss/file.xml` and `path/to/new/rss/file.xml` with the actual paths to your RSS files. Also, store your Twitter API credentials as secrets in your GitHub repository.
-
-This will set up the action to run on every push to the `main` branch and on every pull request.
+Please make sure to store your Twitter API credentials as secrets in your GitHub repository.
 
 ## License
 
