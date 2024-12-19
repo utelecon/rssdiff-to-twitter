@@ -33310,10 +33310,13 @@ async function tweetRssDiff(rssPaths2, twitterTokens2) {
   const parser = new import_rss_parser.default();
   const oldRss = await parseRss(parser, rssPaths2.oldRssPath);
   const newRss = await parseRss(parser, rssPaths2.newRssPath);
-  const oldIdent = oldRss.items.map(generateIdents).reduce((acc, idents) => {
-    idents.forEach((ident) => acc.add(ident));
-    return acc;
-  }, /* @__PURE__ */ new Set(["Void"]));
+  const oldIdent = oldRss.items.map(generateIdents).reduce(
+    (acc, idents) => {
+      idents.forEach((ident) => acc.add(ident));
+      return acc;
+    },
+    /* @__PURE__ */ new Set(["Void"])
+  );
   const posts = newRss.items.filter((item) => {
     return !generateIdents(item).some((ident) => oldIdent.has(ident));
   }).map((entry) => `${entry.title} ${entry.link}`);
@@ -33338,13 +33341,12 @@ async function parseRss(parser, filePath) {
   return await parser.parseString(data);
 }
 function generateIdents(item) {
-  const date = item.pubDate && new Date(item.pubDate);
-  const dateString = date ? date.toDateString() : "";
   const result = [];
-  if (typeof item.link === "string") {
+  const dateString = item.pubDate && new Date(item.pubDate).toDateString();
+  if (dateString && typeof item.link === "string") {
     result.push(`DateLink;;;${dateString};;;${item.link}`);
   }
-  if (typeof item.title === "string") {
+  if (dateString && typeof item.title === "string") {
     result.push(`DateTitle;;;${dateString};;;${item.title}`);
   }
   if (typeof item.link === "string" && typeof item.title === "string") {

@@ -15,10 +15,13 @@ export async function tweetRssDiff(
   const oldRss = await parseRss(parser, rssPaths.oldRssPath);
   const newRss = await parseRss(parser, rssPaths.newRssPath);
 
-  const oldIdent = oldRss.items.map(generateIdents).reduce((acc, idents) => {
-    idents.forEach((ident) => acc.add(ident));
-    return acc;
-  }, new Set<string>(["Void"]));
+  const oldIdent = oldRss.items.map(generateIdents).reduce(
+    (acc, idents) => {
+      idents.forEach((ident) => acc.add(ident));
+      return acc;
+    },
+    new Set<string>(["Void"]),
+  );
 
   const posts = newRss.items
     .filter((item) => {
@@ -64,15 +67,13 @@ async function parseRss(parser: Parser, filePath: string): Promise<RssData> {
  * @returns An object containing identifiers based on the item's publication date, link, and title.
  */
 function generateIdents(item: Item): string[] {
-  const date = item.pubDate && new Date(item.pubDate);
-  const dateString = date ? date.toDateString() : "";
-
   const result = [];
 
-  if (typeof item.link === "string") {
+  const dateString = item.pubDate && new Date(item.pubDate).toDateString();
+  if (dateString && typeof item.link === "string") {
     result.push(`DateLink;;;${dateString};;;${item.link}`);
   }
-  if (typeof item.title === "string") {
+  if (dateString && typeof item.title === "string") {
     result.push(`DateTitle;;;${dateString};;;${item.title}`);
   }
   if (typeof item.link === "string" && typeof item.title === "string") {
