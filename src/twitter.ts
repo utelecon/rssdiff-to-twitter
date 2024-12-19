@@ -15,24 +15,15 @@ export async function tweetRssDiff(
   const oldRss = await parseRss(parser, rssPaths.oldRssPath);
   const newRss = await parseRss(parser, rssPaths.newRssPath);
 
-  const oldIdent = oldRss.items.map(generateIdents).reduce(
-    (acc, idents) => {
-      Object.entries(idents).forEach(
-        ([key, value]) => value && acc[key as keyof Identifier].add(value),
-      );
-      return acc;
-    },
-    {
-      dateLinkIdents: new Set(),
-      dateTitleIdents: new Set(),
-    },
-  );
+  const oldIdent = oldRss.items.map(generateIdents).reduce((acc, idents) => {
+    idents.forEach((ident) => acc.add(ident));
+    return acc;
+  }, new Set<string>(["Void"]));
 
   const posts = newRss.items
     .filter((item) => {
-      return Object.entries(generateIdents(item)).every(
-        ([key, value]) => !oldIdent[key as keyof Identifier].has(value),
-      );
+      // Check if the item is new by comparing identifiers.
+      return !generateIdents(item).some((ident) => oldIdent.has(ident));
     })
     .map((entry) => `${entry.title} ${entry.link}`);
   if (posts.length === 0) {
@@ -66,28 +57,32 @@ async function parseRss(parser: Parser, filePath: string): Promise<RssData> {
   return await parser.parseString(data);
 }
 
-
-interface Identifier {
-  dateLinkIdents?: string;
-  dateTitleIdents?: string;
-}
-
 /**
  * Generates an identifier object for a given RSS feed item.
  *
  * @param item - The RSS feed item for which to generate identifiers.
  * @returns An object containing identifiers based on the item's publication date, link, and title.
  */
-function generateIdents(item: Item): Identifier {
+function generateIdents(item: Item): string[] {
   const date = item.pubDate && new Date(item.pubDate);
   const dateString = date ? date.toDateString() : "";
 
-  const result: Identifier = {};
+  const result = [];
 
   if (typeof item.link === "string") {
-    result.dateLinkIdents = `${dateString};;;${item.link}`;
+    result.push(`DateLink;;;${dateString};;;${item.link}`);
   }
-  result.dateTitleIdents = `${dateString};;;${item.title}`;
+  if (typeof item.title === "string") {
+    result.push(`DateTitle;;;${dateString};;;${item.title}`);
+  }
+  if (typeof item.link === "string" && typeof item.title === "string") {
+    result.push(`LinkTitle;;;${item.link};;;${item.title}`);
+  }
+
+  if (result.length === 0) {
+    // "Void" is present in old RSS, so this entry will always be considered old (not tweeted).
+    result.push("Void");
+  }
 
   return result;
 }

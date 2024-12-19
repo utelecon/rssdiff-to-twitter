@@ -33310,22 +33310,12 @@ async function tweetRssDiff(rssPaths2, twitterTokens2) {
   const parser = new import_rss_parser.default();
   const oldRss = await parseRss(parser, rssPaths2.oldRssPath);
   const newRss = await parseRss(parser, rssPaths2.newRssPath);
-  const oldIdent = oldRss.items.map(generateIdents).reduce(
-    (acc, idents) => {
-      Object.entries(idents).forEach(
-        ([key, value]) => value && acc[key].add(value)
-      );
-      return acc;
-    },
-    {
-      dateLinkIdents: /* @__PURE__ */ new Set(),
-      dateTitleIdents: /* @__PURE__ */ new Set()
-    }
-  );
+  const oldIdent = oldRss.items.map(generateIdents).reduce((acc, idents) => {
+    idents.forEach((ident) => acc.add(ident));
+    return acc;
+  }, /* @__PURE__ */ new Set(["Void"]));
   const posts = newRss.items.filter((item) => {
-    return Object.entries(generateIdents(item)).every(
-      ([key, value]) => !oldIdent[key].has(value)
-    );
+    return !generateIdents(item).some((ident) => oldIdent.has(ident));
   }).map((entry) => `${entry.title} ${entry.link}`);
   if (posts.length === 0) {
     core2.info("No new entry found.");
@@ -33350,11 +33340,19 @@ async function parseRss(parser, filePath) {
 function generateIdents(item) {
   const date = item.pubDate && new Date(item.pubDate);
   const dateString = date ? date.toDateString() : "";
-  const result = {};
+  const result = [];
   if (typeof item.link === "string") {
-    result.dateLinkIdents = `${dateString};;;${item.link}`;
+    result.push(`DateLink;;;${dateString};;;${item.link}`);
   }
-  result.dateTitleIdents = `${dateString};;;${item.title}`;
+  if (typeof item.title === "string") {
+    result.push(`DateTitle;;;${dateString};;;${item.title}`);
+  }
+  if (typeof item.link === "string" && typeof item.title === "string") {
+    result.push(`LinkTitle;;;${item.link};;;${item.title}`);
+  }
+  if (result.length === 0) {
+    result.push("Void");
+  }
   return result;
 }
 
