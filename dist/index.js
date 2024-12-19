@@ -19730,10 +19730,10 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
       (0, command_1.issueCommand)("error", (0, utils_1.toCommandProperties)(properties), message instanceof Error ? message.toString() : message);
     }
     exports2.error = error;
-    function warning(message, properties = {}) {
+    function warning2(message, properties = {}) {
       (0, command_1.issueCommand)("warning", (0, utils_1.toCommandProperties)(properties), message instanceof Error ? message.toString() : message);
     }
-    exports2.warning = warning;
+    exports2.warning = warning2;
     function notice(message, properties = {}) {
       (0, command_1.issueCommand)("notice", (0, utils_1.toCommandProperties)(properties), message instanceof Error ? message.toString() : message);
     }
@@ -33315,10 +33315,15 @@ async function tweetRssDiff(rssPaths2, twitterTokens2) {
       idents.forEach((ident) => acc.add(ident));
       return acc;
     },
-    /* @__PURE__ */ new Set(["Void"])
+    /* @__PURE__ */ new Set()
   );
   const posts = newRss.items.filter((item) => {
-    return !generateIdents(item).some((ident) => oldIdent.has(ident));
+    const idents = generateIdents(item);
+    if (idents.length === 0) {
+      core2.warning(`Skipping entry with no identifiers: ${item.title} ${item.link}`);
+      return false;
+    }
+    return !idents.some((ident) => oldIdent.has(ident));
   }).map((entry) => `${entry.title} ${entry.link}`);
   if (posts.length === 0) {
     core2.info("No new entry found.");
@@ -33351,9 +33356,6 @@ function generateIdents(item) {
   }
   if (typeof item.link === "string" && typeof item.title === "string") {
     result.push(`LinkTitle;;;${item.link};;;${item.title}`);
-  }
-  if (result.length === 0) {
-    result.push("Void");
   }
   return result;
 }

@@ -20,13 +20,20 @@ export async function tweetRssDiff(
       idents.forEach((ident) => acc.add(ident));
       return acc;
     },
-    new Set<string>(["Void"]),
+    new Set<string>(),
   );
 
   const posts = newRss.items
     .filter((item) => {
+      const idents = generateIdents(item);
+      if (idents.length === 0) {
+        // Skip entries with no identifiers. They can't be compared.
+        core.warning(`Skipping entry with no identifiers: ${item.title} ${item.link}`);
+        return false;
+      }
+
       // Check if the item is new by comparing identifiers.
-      return !generateIdents(item).some((ident) => oldIdent.has(ident));
+      return !idents.some((ident) => oldIdent.has(ident));
     })
     .map((entry) => `${entry.title} ${entry.link}`);
   if (posts.length === 0) {
@@ -78,11 +85,6 @@ function generateIdents(item: Item): string[] {
   }
   if (typeof item.link === "string" && typeof item.title === "string") {
     result.push(`LinkTitle;;;${item.link};;;${item.title}`);
-  }
-
-  if (result.length === 0) {
-    // "Void" is present in old RSS, so this entry will always be considered old (not tweeted).
-    result.push("Void");
   }
 
   return result;
