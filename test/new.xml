@@ -20,8 +20,24 @@
     <item>
       <title>Third Entry</title>
       <link>http://www.example.com/third-entry</link>
-      <description>This is the third entry in the test RSS feed</description>
+      <description>New entry that should be tweeted</description>
       <pubDate>Tue, 12 Nov 2024 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Fourth Entry</title>
+      <link>http://www.example.com/second-entry</link>
+      <description>This is the update of second entry. This should be tweeted.</description>
+      <pubDate>Wed, 20 Nov 2024 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Second Entry</title>
+      <link>http://www.example.com/second-entry</link>
+      <description>This is almost same entry as second entry, except for pubDate. This should not be tweeted.</description>
+      <pubDate>Wed, 20 Nov 2024 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Void</title>
+      <description>A void that should not be tweeted</description>
     </item>
   </channel>
 </rss>
