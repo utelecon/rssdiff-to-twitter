@@ -33310,8 +33310,23 @@ async function tweetRssDiff(rssPaths2, twitterTokens2) {
   const parser = new import_rss_parser.default();
   const oldRss = await parseRss(parser, rssPaths2.oldRssPath);
   const newRss = await parseRss(parser, rssPaths2.newRssPath);
-  const oldEntries = new Set(oldRss.items.map((item) => item.link));
-  const posts = newRss.items.filter((item) => !oldEntries.has(item.link)).map((entry) => `${entry.title} ${entry.link}`);
+  const oldIdent = oldRss.items.map(generateIdents).reduce(
+    (acc, idents) => {
+      Object.entries(idents).forEach(
+        ([key, value]) => value && acc[key].add(value)
+      );
+      return acc;
+    },
+    {
+      dateLinkIdents: /* @__PURE__ */ new Set(),
+      dateTitleIdents: /* @__PURE__ */ new Set()
+    }
+  );
+  const posts = newRss.items.filter((item) => {
+    return Object.entries(generateIdents(item)).every(
+      ([key, value]) => !oldIdent[key].has(value)
+    );
+  }).map((entry) => `${entry.title} ${entry.link}`);
   if (posts.length === 0) {
     core2.info("No new entry found.");
     return;
@@ -33331,6 +33346,16 @@ async function tweetRssDiff(rssPaths2, twitterTokens2) {
 async function parseRss(parser, filePath) {
   const data = import_fs.default.readFileSync(filePath, "utf8");
   return await parser.parseString(data);
+}
+function generateIdents(item) {
+  const date = item.pubDate && new Date(item.pubDate);
+  const dateString = date ? date.toDateString() : "";
+  const result = {};
+  if (typeof item.link === "string") {
+    result.dateLinkIdents = `${dateString};;;${item.link}`;
+  }
+  result.dateTitleIdents = `${dateString};;;${item.title}`;
+  return result;
 }
 
 // src/index.ts
