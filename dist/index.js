@@ -33310,21 +33310,25 @@ async function tweetRssDiff(rssPaths2, twitterTokens2) {
   const parser = new import_rss_parser.default();
   const oldRss = await parseRss(parser, rssPaths2.oldRssPath);
   const newRss = await parseRss(parser, rssPaths2.newRssPath);
-  const oldIdent = oldRss.items.map(generateIdents).reduce(
-    (acc, idents) => {
-      idents.forEach((ident) => acc.add(ident));
-      return acc;
-    },
-    /* @__PURE__ */ new Set()
-  );
-  const posts = newRss.items.filter((item) => {
-    const idents = generateIdents(item);
-    if (idents.length === 0) {
-      core2.warning(`Skipping entry with no identifiers: ${item.title} ${item.link}`);
-      return false;
+  const posts = [];
+  for (const entry of newRss.items) {
+    if (!entry.link) {
+      core2.warning(`Entry with title "${entry.title}" has no link.`);
+      continue;
     }
-    return !idents.some((ident) => oldIdent.has(ident));
-  }).map((entry) => `${entry.title} ${entry.link}`);
+    const isOldEntry = oldRss.items.some((oldEntry) => {
+      const diffs = [
+        oldEntry.title !== entry.title,
+        oldEntry.link !== entry.link,
+        oldEntry.pubDate !== entry.pubDate
+      ].filter((d) => d).length;
+      return diffs <= 1;
+    });
+    if (isOldEntry) {
+      break;
+    }
+    posts.push(`${entry.title} ${entry.link}`);
+  }
   if (posts.length === 0) {
     core2.info("No new entry found.");
     return;
@@ -33344,20 +33348,6 @@ async function tweetRssDiff(rssPaths2, twitterTokens2) {
 async function parseRss(parser, filePath) {
   const data = import_fs.default.readFileSync(filePath, "utf8");
   return await parser.parseString(data);
-}
-function generateIdents(item) {
-  const result = [];
-  const dateString = item.pubDate && new Date(item.pubDate).toDateString();
-  if (dateString && typeof item.link === "string") {
-    result.push(`DateLink;;;${dateString};;;${item.link}`);
-  }
-  if (dateString && typeof item.title === "string") {
-    result.push(`DateTitle;;;${dateString};;;${item.title}`);
-  }
-  if (typeof item.link === "string" && typeof item.title === "string") {
-    result.push(`LinkTitle;;;${item.link};;;${item.title}`);
-  }
-  return result;
 }
 
 // src/index.ts
