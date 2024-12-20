@@ -6,10 +6,16 @@
     <language>en-us</language>
     <atom:link href="https://www.example.com/rss.xml" rel="self" type="application/rss+xml"/>
     <item>
-      <title>First Entry</title>
-      <link>http://www.example.com/first-entry</link>
-      <description>This is the first entry in the test RSS feed</description>
-      <pubDate>Fri, 25 Oct 2024 00:00:00 GMT</pubDate>
+      <title>Fifth Entry</title>
+      <link>http://www.example.com/second-entry</link>
+      <description>New entry that should be tweeted, even though the link is the same as second entry.</description>
+      <pubDate>Wed, 13 Nov 2024 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>Fourth Entry</title>
+      <link>http://www.example.com/fourth-entry</link>
+      <description>New entry that should be tweeted</description>
+      <pubDate>Tue, 12 Nov 2024 00:00:00 GMT</pubDate>
     </item>
     <item>
       <title>Second Entry</title>
@@ -20,8 +26,14 @@
     <item>
       <title>Third Entry</title>
       <link>http://www.example.com/third-entry</link>
-      <description>This is the third entry in the test RSS feed</description>
-      <pubDate>Tue, 12 Nov 2024 00:00:00 GMT</pubDate>
+      <description>Since this is after the old entry, this should not be tweeted.</description>
+      <pubDate>Tue, 05 Nov 2024 00:00:00 GMT</pubDate>
+    </item>
+    <item>
+      <title>First Entry</title>
+      <link>http://www.example.com/first-entry</link>
+      <description>This is the first entry in the test RSS feed</description>
+      <pubDate>Fri, 25 Oct 2024 00:00:00 GMT</pubDate>
     </item>
   </channel>
 </rss>
