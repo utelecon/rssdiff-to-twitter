@@ -29,10 +29,11 @@ export async function tweetRssDiff(
         oldEntry.pubDate !== entry.pubDate,
       ].filter((d) => d).length;
 
+      // If there are more than 1 difference, we assume it's a different entry.
       return diffs <= 1;
     });
     if (isOldEntry) {
-      // Since ew entries are always at the top of the feed,
+      // Since new entries are always at the top of the feed,
       // we can stop checking if we reach an old entry.
       break;
     }
