@@ -24,6 +24,17 @@ inputs:
   TWITTER_ACCESS_TOKEN_SECRET:
     description: Twitter Access Token Secret
     required: true
+  POST_LIMIT:
+    description: |
+      Maximum number of posts to tweet.
+      If the number of new posts exceeds this value, the action will fail and no tweets will be sent.
+      When this value is negative, all new posts will be tweeted.
+    required: false
+    default: -1
+  DRY_RUN:
+    description: If true, the action will not tweet anything.
+    required: false
+    default: false
 runs:
   using: node20
   main: 'dist/index.js'
