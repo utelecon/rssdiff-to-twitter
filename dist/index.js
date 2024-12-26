@@ -19730,10 +19730,10 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
       (0, command_1.issueCommand)("error", (0, utils_1.toCommandProperties)(properties), message instanceof Error ? message.toString() : message);
     }
     exports2.error = error;
-    function warning(message, properties = {}) {
+    function warning2(message, properties = {}) {
       (0, command_1.issueCommand)("warning", (0, utils_1.toCommandProperties)(properties), message instanceof Error ? message.toString() : message);
     }
-    exports2.warning = warning;
+    exports2.warning = warning2;
     function notice(message, properties = {}) {
       (0, command_1.issueCommand)("notice", (0, utils_1.toCommandProperties)(properties), message instanceof Error ? message.toString() : message);
     }
@@ -33316,8 +33316,25 @@ async function tweetRssDiff(rssPaths2, twitterTokens2, safetyLimits2) {
   const parser = new import_rss_parser.default();
   const oldRss = await parseRss(parser, rssPaths2.oldRssPath);
   const newRss = await parseRss(parser, rssPaths2.newRssPath);
-  const oldEntries = new Set(oldRss.items.map((item) => item.link));
-  const posts = newRss.items.filter((item) => !oldEntries.has(item.link)).map((entry) => `${entry.title} ${entry.link}`);
+  const posts = [];
+  for (const entry of newRss.items) {
+    if (!entry.link) {
+      core2.warning(`Entry with title "${entry.title}" has no link.`);
+      continue;
+    }
+    const isOldEntry = oldRss.items.some((oldEntry) => {
+      const diffs = [
+        oldEntry.title !== entry.title,
+        oldEntry.link !== entry.link,
+        oldEntry.pubDate !== entry.pubDate
+      ].filter((d) => d).length;
+      return diffs <= 1;
+    });
+    if (isOldEntry) {
+      break;
+    }
+    posts.push(`${entry.title} ${entry.link}`);
+  }
   if (posts.length === 0) {
     core2.info("No new entry found.");
     return;

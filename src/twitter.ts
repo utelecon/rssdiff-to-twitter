@@ -1,6 +1,6 @@
 import fs from "fs";
 import { setTimeout } from "timers/promises";
-import Parser from "rss-parser";
+import Parser, { type Item } from "rss-parser";
 import { TwitterApi, type TwitterApiTokens } from "twitter-api-v2";
 import * as core from "@actions/core";
 
@@ -16,11 +16,32 @@ export async function tweetRssDiff(
   const oldRss = await parseRss(parser, rssPaths.oldRssPath);
   const newRss = await parseRss(parser, rssPaths.newRssPath);
 
-  const oldEntries = new Set(oldRss.items.map((item) => item.link));
+  const posts = [];
+  for (const entry of newRss.items) {
+    if (!entry.link) {
+      core.warning(`Entry with title "${entry.title}" has no link.`);
+      continue;
+    }
 
-  const posts = newRss.items
-    .filter((item) => !oldEntries.has(item.link))
-    .map((entry) => `${entry.title} ${entry.link}`);
+    const isOldEntry = oldRss.items.some((oldEntry) => {
+      const diffs = [
+        oldEntry.title !== entry.title,
+        oldEntry.link !== entry.link,
+        oldEntry.pubDate !== entry.pubDate,
+      ].filter((d) => d).length;
+
+      // If there are more than 1 difference, we assume it's a different entry.
+      return diffs <= 1;
+    });
+    if (isOldEntry) {
+      // Since new entries are always at the top of the feed,
+      // we can stop checking if we reach an old entry.
+      break;
+    }
+
+    posts.push(`${entry.title} ${entry.link}`);
+  }
+
   if (posts.length === 0) {
     core.info("No new entry found.");
     return;
