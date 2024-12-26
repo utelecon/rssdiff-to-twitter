@@ -4,11 +4,12 @@ import Parser, { type Item } from "rss-parser";
 import { TwitterApi, type TwitterApiTokens } from "twitter-api-v2";
 import * as core from "@actions/core";
 
-import type { RssPaths } from "./config";
+import type { RssPaths, SafetyLimits } from "./config";
 
 export async function tweetRssDiff(
   rssPaths: RssPaths,
   twitterTokens: TwitterApiTokens,
+  safetyLimits: SafetyLimits,
 ): Promise<void> {
   const parser = new Parser();
 
@@ -51,15 +52,29 @@ export async function tweetRssDiff(
     core.info(`- ${post}`);
   }
 
-  const client = new TwitterApi(twitterTokens);
-  for (const status of posts) {
-    await client.v2.tweet(status);
-    core.info(`Posted to Twitter: ${status}`);
+  if (safetyLimits.postLimit >= 0 && posts.length > safetyLimits.postLimit) {
+    core.setFailed(
+      `Too many new entries found (${posts.length} > ${safetyLimits.postLimit}).`,
+    );
+    return;
+  } else if (safetyLimits.dryRun) {
+    core.info(
+      "Dry run enabled. Skipping posting new entries to Twitter.",
+    );
+    return;
+  } else {
+    core.info("Posting new entries to Twitter...");
 
-    await setTimeout(5000);
+    const client = new TwitterApi(twitterTokens);
+    for (const status of posts) {
+      await client.v2.tweet(status);
+      core.info(`Posted to Twitter: ${status}`);
+
+      await setTimeout(5000);
+    }
+
+    core.info(`Posted ${posts.length} new entries to Twitter.`);
   }
-
-  core.info(`Posted ${posts.length} new entries to Twitter.`);
 }
 
 type RssData = Parser.Output<{}>;

@@ -19713,11 +19713,11 @@ Support boolean input list: \`true | True | TRUE | false | False | FALSE\``);
       (0, command_1.issue)("echo", enabled ? "on" : "off");
     }
     exports2.setCommandEcho = setCommandEcho;
-    function setFailed2(message) {
+    function setFailed3(message) {
       process.exitCode = ExitCode.Failure;
       error(message);
     }
-    exports2.setFailed = setFailed2;
+    exports2.setFailed = setFailed3;
     function isDebug() {
       return process.env["RUNNER_DEBUG"] === "1";
     }
@@ -33295,7 +33295,13 @@ function getInputs() {
       appKey: core.getInput("TWITTER_APIKEY", { required: true }),
       appSecret: core.getInput("TWITTER_APIKEY_SECRET", { required: true }),
       accessToken: core.getInput("TWITTER_ACCESS_TOKEN", { required: true }),
-      accessSecret: core.getInput("TWITTER_ACCESS_TOKEN_SECRET", { required: true })
+      accessSecret: core.getInput("TWITTER_ACCESS_TOKEN_SECRET", {
+        required: true
+      })
+    },
+    safetyLimits: {
+      postLimit: parseInt(core.getInput("POST_LIMIT")),
+      dryRun: core.getInput("DRY_RUN") === "true"
     }
   };
 }
@@ -33306,7 +33312,7 @@ var import_promises = require("timers/promises");
 var import_rss_parser = __toESM(require_rss_parser());
 var import_twitter_api_v2 = __toESM(require_cjs());
 var core2 = __toESM(require_core());
-async function tweetRssDiff(rssPaths2, twitterTokens2) {
+async function tweetRssDiff(rssPaths2, twitterTokens2, safetyLimits2) {
   const parser = new import_rss_parser.default();
   const oldRss = await parseRss(parser, rssPaths2.oldRssPath);
   const newRss = await parseRss(parser, rssPaths2.newRssPath);
@@ -33337,13 +33343,26 @@ async function tweetRssDiff(rssPaths2, twitterTokens2) {
   for (const post of posts) {
     core2.info(`- ${post}`);
   }
-  const client = new import_twitter_api_v2.TwitterApi(twitterTokens2);
-  for (const status of posts) {
-    await client.v2.tweet(status);
-    core2.info(`Posted to Twitter: ${status}`);
-    await (0, import_promises.setTimeout)(5e3);
+  if (safetyLimits2.postLimit >= 0 && posts.length > safetyLimits2.postLimit) {
+    core2.setFailed(
+      `Too many new entries found (${posts.length} > ${safetyLimits2.postLimit}).`
+    );
+    return;
+  } else if (safetyLimits2.dryRun) {
+    core2.info(
+      "Dry run enabled. Skipping posting new entries to Twitter."
+    );
+    return;
+  } else {
+    core2.info("Posting new entries to Twitter...");
+    const client = new import_twitter_api_v2.TwitterApi(twitterTokens2);
+    for (const status of posts) {
+      await client.v2.tweet(status);
+      core2.info(`Posted to Twitter: ${status}`);
+      await (0, import_promises.setTimeout)(5e3);
+    }
+    core2.info(`Posted ${posts.length} new entries to Twitter.`);
   }
-  core2.info(`Posted ${posts.length} new entries to Twitter.`);
 }
 async function parseRss(parser, filePath) {
   const data = import_fs.default.readFileSync(filePath, "utf8");
@@ -33351,8 +33370,8 @@ async function parseRss(parser, filePath) {
 }
 
 // src/index.ts
-var { rssPaths, twitterTokens } = getInputs();
-tweetRssDiff(rssPaths, twitterTokens).catch((error) => {
+var { rssPaths, twitterTokens, safetyLimits } = getInputs();
+tweetRssDiff(rssPaths, twitterTokens, safetyLimits).catch((error) => {
   core3.setFailed(error.message);
 });
 /*! Bundled license information:
